@@ -2,7 +2,11 @@
 
 ![](D2FA980D-589B-492E-BDE6-01B5E3C24FFA.gif)
 
-## python
+## Processing DEM with gdal and python
+
+The DEM (digital elevation model) I'm working with is in the GeoTIFF format with a pixel resolution of 2x2m. Each file from Landmælingar Íslands is 25.000 x 25.000 pixels so I had originally cropped them to more manageable 2.500 x 2.500 pixel files.
+
+Here is the code for reading the elevation into an array using gdal in python:
 
 ```python
 from osgeo import gdal, gdal_array
