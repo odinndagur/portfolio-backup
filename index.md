@@ -33,25 +33,20 @@ nodata = band.GetNoDataValue()
 
 #Create a masked array for making calculations without nodata values
 rasterArrayMasked = np.ma.masked_equal(rasterArray, nodata)
-# Check again array
-min1 = rasterArrayMasked.min()
-max1 = rasterArrayMasked.max()
-print(min1,max1)
-rasterArray[rasterArray < -100.0] = -100.0
+rasterArray[rasterArray < -100.0] = -100.0 # arbitrary value for the lowest values to avoid nodata
 ```
 
-```python
-xSize = 251
+<!-- xSize = 251
 zSize = 251
 step = 20
 
 # [x for x in range(0,xSize * step, step)]
 for offset in [12000, 18000]:
-    name = 'xsize_zsize_' + str(xSize) + '_step_' + str(step) + '_offset_' + str(offset)
-    meshdata = rasterArray[offset:offset + (xSize * step):step,offset:offset + (xSize * step):step]
-    with open('meshdata/' + name + '.dat', 'wb') as f:
-        f.write(meshdata.tobytes())
-
+    name = 'xsize_zsize_' + str(xSize) + '_step_' + str(step) + '_offset_' + str(offset) -->
+```python
+meshdata = rasterArray[xmin:xmax:xstep,ymin:ymax:ystep]
+with open('meshdata/' + name + '.dat', 'wb') as f:
+    f.write(meshdata.tobytes())
 ```
 
 <!-- ```python
