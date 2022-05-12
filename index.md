@@ -1,7 +1,12 @@
 # Compute Shader terrain adventures
 
-![](D2FA980D-589B-492E-BDE6-01B5E3C24FFA.gif)
+I've been playing around with digital elevation model (DEM for short) height maps. The ones I have are GeoTIFF files from Landmælingar Íslands (National Land Survey of Iceland). They are georeferenced grayscale images that cover the entire country of Iceland with a resolution of 2x2m per pixel. Each pixel has a floating point grayscale value that corresponds to the average height of that point on the country.
 
+
+
+| ![](D2FA980D-589B-492E-BDE6-01B5E3C24FFA.gif) |
+|:--:| 
+| *Space* |
 ## Processing DEM with gdal and python
 
 The DEM (digital elevation model) I'm working with is in the GeoTIFF format with a pixel resolution of 2x2m. Each file from Landmælingar Íslands is 25.000 x 25.000 pixels so I had originally cropped them to more manageable 2.500 x 2.500 pixel files.
