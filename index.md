@@ -6,7 +6,7 @@ I've been playing around with digital elevation model (DEM for short) height map
 
 _Mesh generated from DEM data, in Blender using its Python API - morphing done with shape keys_
 
-## *Processing DEM files with gdal and python*
+### *Processing DEM files with gdal and python*
 
 I've been playing around with Cartopy recently, learning about coordinate projections and working with map data. I hadn't yet used raster height maps so it was a great opportunity to learn more about Gdal, a command line utility (and python interface) for working with georeferenced maps.
 
