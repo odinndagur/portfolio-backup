@@ -10,13 +10,6 @@ import os
 import numpy as np
 
 
-filepath1 = '/Users/odinndagur/Blender/2022/islandsdem-modular-heightmap/data/temp/IslandsDEMv1.0_2x2m_zmasl_isn2016_57_x_4_y_4.tif'
-filepath = '/Users/odinndagur/Blender/2022/islandsdem-modular-heightmap/data/raw/IslandsDEMv1.0_2x2m_zmasl_isn2016_57.tif' # testa með heilu 25k * 25k tif
-filepath2 = '/Users/odinndagur/Blender/2022/islandsdem-modular-heightmap/data/temp/IslandsDEMv1.0_2x2m_zmasl_isn2016_57_x_3_y_5.tif'
-
-fp = '/Users/odinndagur/Blender/2022/islandsdem-modular-heightmap/data/temp/IslandsDEMv1.0_2x2m_zmasl_isn2016_34_x_0_y_0.tif'
-
-
 filepath = '/Users/odinndagur/Blender/2022/islandsdem-modular-heightmap/data/temp/IslandsDEMv1.0_2x2m_zmasl_isn2016_57_x_3_y_5.tif'
 rasterArray = gdal_array.LoadFile(filepath)
 raster = gdal.Open(filepath)
@@ -40,8 +33,8 @@ df = pd.DataFrame(rasterArray)
 heights = df.iloc[:,1:].values
 
 
-with open('heights3.dat','wb') as f:
-    f.write(heights.tobytes())
+with open('binary-heights-file.dat','wb') as f:
+    f.write(rasterArray[xstart:xend:xstep,ystart:yend:ystep].tobytes())
 ```
 
 
