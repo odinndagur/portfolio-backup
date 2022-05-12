@@ -10,7 +10,7 @@ _Mesh generated from DEM data, in Blender using its Python API - morphing done w
 
 I've been playing around with Cartopy recently, learning about coordinate projections and working with map data. I hadn't yet used raster height maps so it was a great opportunity to learn more about Gdal, a command line utility (and python interface) for working with georeferenced maps.
 
-Here's the basic code for getting the height data into a numpy array (and pandas dataframe if you prefer).
+Here's the basic code for getting the height data into a numpy array.
 
 
 ```python
@@ -21,7 +21,8 @@ import os
 import numpy as np
 
 
-filepath = '/Users/odinndagur/Blender/2022/islandsdem-modular-heightmap/data/temp/IslandsDEMv1.0_2x2m_zmasl_isn2016_57_x_3_y_5.tif'
+filepath = '~/datafolder/IslandsDEMv1.0_2x2m_zmasl_isn2016_57.tif'
+
 rasterArray = gdal_array.LoadFile(filepath)
 raster = gdal.Open(filepath)
 band = raster.GetRasterBand(1)
@@ -31,23 +32,32 @@ print(gdal.GetDataTypeName(band.DataType))
 nodata = band.GetNoDataValue()
 
 #Create a masked array for making calculations without nodata values
-rasterArray = np.ma.masked_equal(rasterArray, nodata)
-type(rasterArray)
-
+rasterArrayMasked = np.ma.masked_equal(rasterArray, nodata)
 # Check again array
-min1 = rasterArray.min()
-max1 = rasterArray.max()
+min1 = rasterArrayMasked.min()
+max1 = rasterArrayMasked.max()
 print(min1,max1)
-
-
-df = pd.DataFrame(rasterArray)
-heights = df.iloc[:,1:].values
-
-
-with open('binary-heights-file.dat','wb') as f:
-    f.write(rasterArray[xstart:xend:xstep,ystart:yend:ystep].tobytes())
+rasterArray[rasterArray < -100.0] = -100.0
 ```
 
+```python
+xSize = 251
+zSize = 251
+step = 20
+
+# [x for x in range(0,xSize * step, step)]
+for offset in [12000, 18000]:
+    name = 'xsize_zsize_' + str(xSize) + '_step_' + str(step) + '_offset_' + str(offset)
+    meshdata = rasterArray[offset:offset + (xSize * step):step,offset:offset + (xSize * step):step]
+    with open('meshdata/' + name + '.dat', 'wb') as f:
+        f.write(meshdata.tobytes())
+
+```
+
+<!-- ```python
+with open('binary-heights-file.dat','wb') as f:
+    f.write(rasterArray[xstart:xend:xstep,ystart:yend:ystep].tobytes())
+``` -->
 
 I started messing around in Blender, generating meshes from real life places in Iceland. Since I had the height data I just needed to make a grid and set each vertice's height to the height at its point on the map. Here's the basic code for generating the base mesh.
 
