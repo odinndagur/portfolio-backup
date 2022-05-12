@@ -5,6 +5,7 @@ I've been playing around with digital elevation model (DEM for short) height map
 
 
 ![](D2FA980D-589B-492E-BDE6-01B5E3C24FFA.gif)
+
 _Mesh generated from DEM data, in Blender using its Python API - morphing done with shape keys_
 
 ## Processing DEM with gdal and python
