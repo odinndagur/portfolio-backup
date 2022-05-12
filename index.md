@@ -44,6 +44,11 @@ with open('binary-heights-file.dat','wb') as f:
 ```
 
 ## blender mesh gen with python
+
+I started out generating terrain meshes with Blender and its Python API. 
+
+For flexibility I generate the faces array each time so I'm able to test out different sizes. If all chunks are the same size (for example 251 * 251 vertices, 250 * 250 faces) I can generate the faces array once and set every mesh's faces as the same array (since the setup is always the same, the only difference is the height of each vertex).
+
 ```python
 def generate_terrain_mesh(row,col):
     w = 251
@@ -92,7 +97,12 @@ def generate_terrain_mesh(row,col):
 
 ```
 
-## C#
+## Unity - C#
+
+This is the C# part of the Unity side of things. Some of the functions have a [ContextMenu()] attribute to be able to run it at will in the editor without executing it every frame.
+
+Here I have saved the heights into a binary file for fast loading. The compute shader runs pretty much instantly, processing evert single vertex and returning the new height (interpolated between two points, can have two separate places and morph between, can affect different parts in different ways).
+
 
 ```
 using System;
@@ -351,7 +361,9 @@ public class CoarseMeshGen : MonoBehaviour
 }
 ```
 
-## compute
+## The sinplest version of the compute shader
+
+In this version I have one buffer per terrain chunk, lerp between the heights and return the updated position to the output buffer to be read back on the CPU side.
 
 ```hlsl
 // Each #kernel tells which function to compile; you can have many kernels
@@ -359,6 +371,7 @@ public class CoarseMeshGen : MonoBehaviour
 
 RWStructuredBuffer<float3> _Positions;
 RWStructuredBuffer<float3> _Positions2;
+RWStructuredBuffer<float3> _OutputPositions;
 
 float _t;
 
@@ -367,13 +380,15 @@ void CSMain (uint id : SV_DispatchThreadID){
     float3 pos1 = _Positions[id];
     float3 pos2 = _Positions2[id];
     float3 newPos = float3(pos1.x,_t * pos1.y + (1 - _t) * pos2.y,pos1.z);
-    _Positions[id] = newPos;
+    _OutputPositions[id] = newPos;
 }
 ```
 
 
 
+## Compute shader with audio input
 
+Here I've added a buffer that receives the fft audio information each frame. We can use the audio information to decide how/how much/where to displace the meshes.
 
 ```hlsl
 // Each #kernel tells which function to compile; you can have many kernels
