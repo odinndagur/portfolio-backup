@@ -54,17 +54,20 @@ with open('binary-heights-file.dat','wb') as f:
     f.write(rasterArray[xstart:xend:xstep,ystart:yend:ystep].tobytes())
 ``` -->
 
+
 I started messing around in Blender, generating meshes from real life places in Iceland. Since I had the height data I just needed to make a grid and set each vertice's height to the height at its point on the map. Here's the basic code for generating the base mesh.
 
 
 
 
 
-## blender mesh gen with python
+### *blender mesh gen with python*
 
 I started out generating terrain meshes with Blender and its Python API. 
 
 For flexibility I generate the faces array each time so I'm able to test out different sizes. If all chunks are the same size (for example 251 * 251 vertices, 250 * 250 faces) I can generate the faces array once and set every mesh's faces as the same array (since the setup is always the same, the only difference is the height of each vertex).
+
+Since two adjoining chunks always share a border, when we get to the last one we have to start 1 vertice further to the left (so we don't exceed the width).
 
 ```python
 def generate_terrain_mesh(row,col):
@@ -82,7 +85,6 @@ def generate_terrain_mesh(row,col):
     if(col == 9):
         ymin -= 1
     vertices = [((x-xmin)*scale,(y-ymin)*scale,heights[x][y]*scale) for x in range(xmin,xmin+w) for y in range(ymin,ymin+h)]
-    #print(len(heights),len(heights[2500]))
 
     # make triangle faces
     vertexIndex = 0
@@ -116,7 +118,7 @@ def generate_terrain_mesh(row,col):
 
 ## Unity - C#
 
-This is the C# part of the Unity side of things. Some of the functions have a [ContextMenu()] attribute to be able to run it at will in the editor without executing it every frame.
+This is the C# part of the Unity side of things. Some of the functions have a [ContextMenu()] attribute to be able to run it at will in the editor without executing it every frame. For example, I use the context menu to generate the base mesh once on the CPU and then I can update it on the GPU.
 
 Here I have saved the heights into a binary file for fast loading. The compute shader runs pretty much instantly, processing evert single vertex and returning the new height (interpolated between two points, can have two separate places and morph between, can affect different parts in different ways).
 
@@ -172,14 +174,12 @@ public class CoarseMeshGen : MonoBehaviour
 
     [ContextMenu("Start")]
     void Start(){
-        // material = new Material(shader);
         loadMeshAndGenerateBufferArrays();
         positionsBuffer.SetData(buff);
         positionsBuffer2.SetData(buff2);
         cs.SetBuffer(0, "_Positions", positionsBuffer);
         cs.SetBuffer(0, "_Positions2", positionsBuffer2);
         cs.SetBuffer(0, "_OutputPositions", outputPositions);
-        // material.SetBuffer(0,"meshVertices", outputPositions);
 
 
         GenerateMesh();
@@ -189,13 +189,11 @@ public class CoarseMeshGen : MonoBehaviour
     void Update(){
         if(t != lastT || audioPlayer.GetComponent<AudioSource>().isPlaying){
             updateOnGPU();
-            // Debug.Log("gpu");
             lastT = t;
         }
         if(sine){
         t = (Mathf.Sin(Time.time * morphSpeed) + 1)/2;
         }
-        // updateOnGPU();
     }
 
 
@@ -210,7 +208,6 @@ public class CoarseMeshGen : MonoBehaviour
 
 
     void OnEnable () {
-        // loadData();
 		positionsBuffer = new ComputeBuffer((xSize+1)*(zSize+1), 3*sizeof(float));
         positionsBuffer2 = new ComputeBuffer((xSize+1)*(zSize+1), 3*sizeof(float));
         outputPositions = new ComputeBuffer((xSize+1)*(zSize+1), 3*sizeof(float));
@@ -231,10 +228,6 @@ public class CoarseMeshGen : MonoBehaviour
     
     [ContextMenu("Buffer Setup")]
     void bufferSetup(){
-                    // heightsBuffer = new ComputeBuffer(width*height,sizeof(float));
-            // loadData();
-            // heightsBuffer.SetData(bigArr);
-            // cs.SetBuffer(0,heightsId,heightsBuffer);
         positionsBuffer = new ComputeBuffer((xSize+1)*(zSize+1), 3*sizeof(float));
         positionsBuffer2 = new ComputeBuffer((xSize+1)*(zSize+1), 3*sizeof(float));
         outputPositions = new ComputeBuffer((xSize+1)*(zSize+1), 3*sizeof(float));
@@ -246,15 +239,9 @@ public class CoarseMeshGen : MonoBehaviour
     }
     [ContextMenu("Update on gpu")]
     void updateOnGPU(){
-        // if(positionsBuffer == null || positionsBuffer2 == null){
-        //     bufferSetup();
-        // }
-        // positionsBuffer2.SetData(buff2);
-        // positionsBuffer.SetData(buff);
         cs.SetBuffer(0, "_Positions", positionsBuffer);
         cs.SetBuffer(0, "_Positions2", positionsBuffer2);
         cs.SetBuffer(0, "_OutputPositions", outputPositions);
-        // material.SetBuffer (0, "meshVertices", outputPositions);
 
         fftBuffer.SetData(audioPlayer.spectrum);
         cs.SetBuffer(0, "_fftBuffer", fftBuffer);
@@ -269,7 +256,6 @@ public class CoarseMeshGen : MonoBehaviour
 		cs.Dispatch(kernelHandle, groups * groups, 1, 1);
         Vector3[] data = new Vector3[(xSize+1) * (zSize+1)];
         outputPositions.GetData(data);
-        // Debug.Log(data[62000]);
         mesh.vertices = data;
         mesh.RecalculateNormals ();
     }
