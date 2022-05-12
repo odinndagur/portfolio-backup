@@ -1,5 +1,7 @@
 # Compute Shader terrain adventures
 
+![](D2FA980D-589B-492E-BDE6-01B5E3C24FFA.gif)
+
 ## python
 
 ```python
