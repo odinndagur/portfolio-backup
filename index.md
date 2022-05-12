@@ -4,9 +4,9 @@ I've been playing around with digital elevation model (DEM for short) height map
 
 
 
-| ![](D2FA980D-589B-492E-BDE6-01B5E3C24FFA.gif) |
-|:--:| 
-| *Space* |
+![](D2FA980D-589B-492E-BDE6-01B5E3C24FFA.gif)
+_Mesh generated from DEM data, in Blender using its Python API - morphing done with shape keys_
+
 ## Processing DEM with gdal and python
 
 The DEM (digital elevation model) I'm working with is in the GeoTIFF format with a pixel resolution of 2x2m. Each file from Landmælingar Íslands is 25.000 x 25.000 pixels so I had originally cropped them to more manageable 2.500 x 2.500 pixel files.
