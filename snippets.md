@@ -31,7 +31,32 @@ with open('meshdata/' + name + '.dat', 'wb') as f:
     f.write(meshdata.tobytes())
 ```
 
+## Read binary file in C#
+```csharp
+float[,] LoadTilemap(string aFileName, int arraySize)
+ {
+     float[,] temp = new float[arraySize,arraySize];
+     try
+     {
+         using (var fileStream = System.IO.File.OpenRead(aFileName))
+         using (var reader = new System.IO.BinaryReader(fileStream))
+         {
+            for(int y = 0; y < arraySize; y++){
+                for(int x = 0; x < arraySize; x++){
+                    float value = reader.ReadSingle();
+                    temp[x,y] = value;
+                }
+            }
+        }
+     }
+     catch(System.Exception e)
+     {
+         // handle errors here.
+     }
+ }
+```
 
+## Generate blender mesh
 ```python
 def generate_terrain_mesh(row,col):
     w = 251
